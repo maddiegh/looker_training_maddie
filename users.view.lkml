@@ -12,6 +12,25 @@ view: users {
     sql: ${TABLE}.AGE ;;
   }
 
+  dimension: age_tier {
+    type: tier
+    style: integer
+    tiers: [0,10,20,30,40,50,60,70]
+    sql: ${TABLE}.AGE ;;
+  }
+
+  dimension: location {
+    type: location
+    sql_latitude: ${TABLE}.latitude ;;
+    sql_longitude: ${TABLE}.longitude ;;
+  }
+
+  dimension: aprox_location {
+    type: location
+    sql_latitude: round(${TABLE}.latitude,1) ;;
+    sql_longitude: round(${TABLE}.longitude,1) ;;
+  }
+
   dimension: city {
     type: string
     sql: ${TABLE}.CITY ;;
@@ -25,15 +44,15 @@ view: users {
 
   dimension_group: created {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    # timeframes: [
+    #   raw,
+    #   time,
+    #   date,
+    #   week,
+    #   month,
+    #   quarter,
+    #   year
+    # ]
     sql: ${TABLE}.CREATED_AT ;;
   }
 
@@ -44,6 +63,7 @@ view: users {
 
   dimension: first_name {
     type: string
+    hidden: yes
     sql: ${TABLE}.FIRST_NAME ;;
   }
 
@@ -52,18 +72,26 @@ view: users {
     sql: ${TABLE}.GENDER ;;
   }
 
+  dimension: gender_short {
+    type: string
+    sql: lower(substr(${TABLE}.GENDER,1,1)) ;;
+  }
+
   dimension: last_name {
     type: string
+    hidden: yes
     sql: ${TABLE}.LAST_NAME ;;
   }
 
   dimension: latitude {
     type: number
+    hidden: yes
     sql: ${TABLE}.LATITUDE ;;
   }
 
   dimension: longitude {
     type: number
+    hidden: yes
     sql: ${TABLE}.LONGITUDE ;;
   }
 
@@ -82,8 +110,27 @@ view: users {
     sql: ${TABLE}.ZIP ;;
   }
 
+  dimension: UK_postcode {
+    map_layer_name: uk_postcode_areas
+    sql: case when substr(${zip}, 2, 1) in ('0','1','2','3','4','5','6','7','8','9')
+         then upper(left(${zip}, 1))
+         else upper(left(${zip}, 2)) end ;;
+  }
+
   measure: count {
     type: count
-    drill_fields: [id, first_name, last_name, events.count, order_items.count]
+    drill_fields: [id, first_name, last_name, events.count, order_items1.count]
   }
+
+  measure: average_age {
+    type: average
+    sql: ${TABLE}.AGE ;;
+  }
+
+  measure: count_percent_of_total {
+    label: "Count (Percent of Total)"
+    type: percent_of_total
+    sql: ${count} ;;
+  }
+
 }
