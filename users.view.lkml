@@ -117,6 +117,26 @@ view: users {
          else upper(left(${zip}, 2)) end ;;
   }
 
+  parameter: fields_to_filter_on {
+    type: string
+    hidden: yes
+    allowed_value: { value: "gender" }
+    allowed_value: { value: "age_tier" }
+    allowed_value: { value: "state" }
+  }
+
+  dimension: metric {
+    label_from_parameter:  fields_to_filter_on
+    hidden: yes
+    type: string
+    sql: case when {% parameter fields_to_filter_on %} = 'gender' then ${gender}
+            when {% parameter fields_to_filter_on %} = 'age_tier' then ${age_tier}
+            when {% parameter fields_to_filter_on %} = 'state' then ${state}
+      end
+    ;;
+  }
+
+
   measure: count {
     type: count
     drill_fields: [id, first_name, last_name, events.count, order_items1.count]

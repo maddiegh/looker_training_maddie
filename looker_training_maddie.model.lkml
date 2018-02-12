@@ -113,6 +113,7 @@ explore: inventory_items {
 
  explore: order_items1 {
   label: "(1) Orders, Items and Users"
+  view_label: "Order Items"
      join: users {
      type: left_outer
      sql_on: ${order_items1.user_id} = ${users.id} ;;
